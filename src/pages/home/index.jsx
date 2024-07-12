@@ -22,7 +22,7 @@ function Home() {
                 to="/create"
                 sx={{ mt: 2 }}
               >
-                Đi tới Quản lý chi phí
+                Đi tới Quản lý chi phí csc
               </Button>
             </Paper>
           </Grid>
