@@ -1,4 +1,5 @@
 import  { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Container, Box, Typography } from '@mui/material';
 
 function CreateExpense() {
@@ -73,6 +74,7 @@ function CreateExpense() {
           Thêm chi phí
         </Button>
       </Box>
+      <Outlet/>
     </Container>
   );
 }

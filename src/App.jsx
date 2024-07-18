@@ -8,6 +8,9 @@ import Budget from './components/budget';
 import ExpenseOverview from './components/expenseOverview';
 import ExpenseReport from './components/expense-report';
 import Header from './components/layouts/header';
+import ListUser from './components/admin/list-user';
+import ExpenseUser from './components/admin/expense-user';
+import New from './components/new';
 
 function App() {
   return (
@@ -19,12 +22,17 @@ function App() {
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
-            <Route path='/create' element={<CreateExpense />} />
+            {/* <Route path='/create' element={<CreateExpense />} /> */}
+            <Route path='/create' element={<CreateExpense />}>
+                  <Route path='new' element={<New />} />
+            </Route>
             <Route path='/budget' element={<Budget />} />
             <Route path='/expenses' element={<ExpenseOverview />} />
             <Route path='/expense-report' element={<ExpenseReport />} />
+            <Route path='/list-user' element={<ListUser />} /> 
+            <Route path='/expense-user' element={<ExpenseUser />} />
           </Routes>
-        </main>dscds
+        </main>
       </div>
     
     </Router>
