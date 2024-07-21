@@ -1,6 +1,6 @@
 
 .gradient-custom-2 {
-    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    background: linear-gradient(45deg, #33ab9f, #2a9587);
     color: white;
  }
  
@@ -19,7 +19,7 @@
      .btn-login{
          width: 390px;
          height: 40px;
-        
+        outline: none !important;
      }
  
      .btn-login {
@@ -28,10 +28,11 @@
        
        .btn-login:hover {
          opacity: 0.9;
+         color: #fff !important;
        }
        
        .btn-login:active {
-         background-color: #002752; 
+         background-color: #33ab9f; 
          color: #fff; 
          transform: scale(0.98); 
        }

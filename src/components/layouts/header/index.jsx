@@ -15,9 +15,13 @@ import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import CreateIcon from '@mui/icons-material/Create';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import OverviewIcon from '@mui/icons-material/Assessment';
 import ReportIcon from '@mui/icons-material/Report';
+import IconButton from '@mui/material/IconButton';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { useState } from 'react';
 
 const drawerWidth = 240;
 
@@ -27,10 +31,24 @@ export default function PermanentDrawerLeft() {
     { text: 'Đăng nhập', icon: <AccountCircleIcon />, path: '/login' },
     { text: 'Đăng ký', icon: <AppRegistrationIcon />, path: '/register' },
     { text: 'Thêm chi phí', icon: <CreateIcon />, path: '/create' },
-    { text: 'Cài đặt ngân sách', icon: <AttachMoneyIcon />, path: '/budget' },
     { text: 'Tổng quan chi phí', icon: <OverviewIcon />, path: '/expenses' },
     { text: 'Báo cáo chi tiêu', icon: <ReportIcon />, path: '/expense-report' },
   ];
+
+  const adminItems = [
+    { text: 'User Management', path: '/admin/users' },
+    { text: 'Expense Management', path: '/admin/expenses' },
+  ];
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleAdminMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleAdminMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -39,10 +57,32 @@ export default function PermanentDrawerLeft() {
         position="fixed"
         sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
       >
-        <Toolbar>
+        <Toolbar sx={{ bgcolor: '#33ab9f', display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6" noWrap component="div">
-           QUẢN LÝ CHI TIÊU
+            QUẢN LÝ CHI TIÊU
           </Typography>
+          <IconButton
+            color="inherit"
+            onClick={handleAdminMenuClick}
+          >
+            <AdminPanelSettingsIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleAdminMenuClose}
+          >
+            {adminItems.map((item) => (
+              <MenuItem
+                key={item.text}
+                component={Link}
+                to={item.path}
+                onClick={handleAdminMenuClose}
+              >
+                {item.text}
+              </MenuItem>
+            ))}
+          </Menu>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -63,7 +103,7 @@ export default function PermanentDrawerLeft() {
           {menuItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton component={Link} to={item.path}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ color: '#33ab9f' }}>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
             </ListItem>

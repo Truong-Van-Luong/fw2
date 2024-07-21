@@ -70,7 +70,7 @@ function CreateExpense() {
             <MenuItem value="Transport">Phương tiện đi lại</MenuItem>
           </Select>
         </FormControl>
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+        <Button type="submit" variant="contained"sx={{ mt: 2, bgcolor: '#33ab9f', '&:hover': { bgcolor: '#2a9587' } }}>
           Thêm chi phí
         </Button>
       </Box>

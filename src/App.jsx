@@ -4,13 +4,11 @@ import Home from './pages/home';
 import Login from './components/auth/login/login';
 import Register from './components/auth/register/register';
 import CreateExpense from './components/expenses/create-ex';
-import Budget from './components/budget';
 import ExpenseOverview from './components/expenseOverview';
 import ExpenseReport from './components/expense-report';
 import Header from './components/layouts/header';
-import ListUser from './components/admin/list-user';
-import ExpenseUser from './components/admin/expense-user';
-import New from './components/new';
+import UserManagement from './components/admin/list-user';
+import ExpenseManagement from './components/admin/expense-user';
 
 function App() {
   return (
@@ -22,15 +20,11 @@ function App() {
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
-            {/* <Route path='/create' element={<CreateExpense />} /> */}
-            <Route path='/create' element={<CreateExpense />}>
-                  <Route path='new' element={<New />} />
-            </Route>
-            <Route path='/budget' element={<Budget />} />
+            <Route path='/create' element={<CreateExpense />} />
             <Route path='/expenses' element={<ExpenseOverview />} />
             <Route path='/expense-report' element={<ExpenseReport />} />
-            <Route path='/list-user' element={<ListUser />} /> 
-            <Route path='/expense-user' element={<ExpenseUser />} />
+            <Route path='admin/users' element={<UserManagement />} /> 
+            <Route path='admin/expenses' element={<ExpenseManagement />} />
           </Routes>
         </main>
       </div>

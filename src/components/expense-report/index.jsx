@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Container, Box, Typography, FormControl, InputLabel, Select, MenuItem, Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Container, Box, Typography, FormControl, InputLabel, Select, MenuItem, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 
 
 function ExpenseReport() {
   const [reportPeriod, setReportPeriod] = useState('');
 
-  const handleGenerateReport = () => {
+  // const handleGenerateReport = () => {
     
-  }
+  // }
 
 
   const handlePeriodChange = (event) => {
@@ -30,9 +30,9 @@ function ExpenseReport() {
             <MenuItem value="yearly">Hàng năm</MenuItem>
           </Select>
         </FormControl>
-        <Button variant="contained" color="primary" onClick={handleGenerateReport} sx={{ ml: 2 }}>
+        {/* <Button variant="contained" color="primary" onClick={handleGenerateReport} sx={{ ml: 2 }}>
           Tạo báo cáo
-        </Button>
+        </Button> */}
       </Box>
       <Grid container spacing={3}>
         <Grid item xs={12}>
