@@ -1,43 +1,53 @@
-import { Container, Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
 
-const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'User' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Admin' },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'User' },
-];
+const UserManagement = () => {
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState('');
 
-function UserManagement() {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/admin/users', {
+        headers: { 'x-access-token': localStorage.getItem('token') }
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error(error);
+      setError('Không thể tải danh sách người dùng');
+    }
+  };
+
   return (
     <Container>
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-        Quản lý user
-        </Typography>
-        <TableContainer component={Paper} sx={{ mt: 4, mb: 4 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Role</TableCell>
+      <Typography variant="h4" sx={{ mt: 4, mb: 4 }}>Quản Lý Người Dùng</Typography>
+      {error && <Typography color="error">{error}</Typography>}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Tên người dùng</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Vai trò</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map(user => (
+              <TableRow key={user.email}>
+                <TableCell>{user.username}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.role}</TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {mockUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Container>
   );
-}
+};
 
 export default UserManagement;

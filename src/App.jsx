@@ -4,6 +4,7 @@ import Home from './pages/home';
 import Login from './components/auth/login/login';
 import Register from './components/auth/register/register';
 import CreateExpense from './components/expenses/create-ex';
+import ExpenseList from './components/expenses/Expense-list';
 import ExpenseOverview from './components/expenseOverview';
 import ExpenseReport from './components/expense-report';
 import Header from './components/layouts/header';
@@ -20,7 +21,8 @@ function App() {
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
-            <Route path='/create' element={<CreateExpense />} />
+            <Route path='/expense-list' element={<ExpenseList />} />
+            <Route path='/expense-create' element={<CreateExpense />} />
             <Route path='/expenses' element={<ExpenseOverview />} />
             <Route path='/expense-report' element={<ExpenseReport />} />
             <Route path='admin/users' element={<UserManagement />} /> 

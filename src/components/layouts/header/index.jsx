@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -21,7 +21,10 @@ import IconButton from '@mui/material/IconButton';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 import { useState } from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const drawerWidth = 240;
 
@@ -30,17 +33,22 @@ export default function PermanentDrawerLeft() {
     { text: 'Trang chủ', icon: <HomeIcon />, path: '/' },
     { text: 'Đăng nhập', icon: <AccountCircleIcon />, path: '/login' },
     { text: 'Đăng ký', icon: <AppRegistrationIcon />, path: '/register' },
-    { text: 'Thêm chi phí', icon: <CreateIcon />, path: '/create' },
+    { text: 'Thêm chi phí', icon: <CreateIcon />, path: '/expense-create' },
+    { text: 'Danh sách', icon: <ChecklistIcon />, path: '/expense-list' },
     { text: 'Tổng quan chi phí', icon: <OverviewIcon />, path: '/expenses' },
     { text: 'Báo cáo chi tiêu', icon: <ReportIcon />, path: '/expense-report' },
   ];
 
   const adminItems = [
-    { text: 'User Management', path: '/admin/users' },
-    { text: 'Expense Management', path: '/admin/expenses' },
+    { text: 'Quản lý người dùng', path: '/admin/users' },
+    { text: 'Quản lý chi tiêu người dùng', path: '/admin/expenses' },
   ];
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const navigate = useNavigate();
 
   const handleAdminMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -48,6 +56,26 @@ export default function PermanentDrawerLeft() {
 
   const handleAdminMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    const token = localStorage.getItem('token'); // Kiểm tra token
+
+    if (token) {
+      localStorage.removeItem('token'); // Xóa token
+      setSnackbarMessage('Bạn đã đăng xuất');
+      setSnackbarSeverity('success');
+      setOpenSnackbar(true); // Hiển thị thông báo đăng xuất
+      setTimeout(() => navigate('/login'), 1000); // Chuyển hướng sau 2 giây
+    } else {
+      setSnackbarMessage('Bạn vui lòng đăng nhập');
+      setSnackbarSeverity('info');
+      setOpenSnackbar(true); // Hiển thị thông báo yêu cầu đăng nhập
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
   return (
@@ -61,28 +89,37 @@ export default function PermanentDrawerLeft() {
           <Typography variant="h6" noWrap component="div">
             QUẢN LÝ CHI TIÊU
           </Typography>
-          <IconButton
-            color="inherit"
-            onClick={handleAdminMenuClick}
-          >
-            <AdminPanelSettingsIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleAdminMenuClose}
-          >
-            {adminItems.map((item) => (
-              <MenuItem
-                key={item.text}
-                component={Link}
-                to={item.path}
-                onClick={handleAdminMenuClose}
-              >
-                {item.text}
-              </MenuItem>
-            ))}
-          </Menu>
+          <div>
+            <IconButton
+              color="inherit"
+              onClick={handleAdminMenuClick}
+            >
+              <AdminPanelSettingsIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleAdminMenuClose}
+            >
+              {adminItems.map((item) => (
+                <MenuItem
+                  key={item.text}
+                  component={Link}
+                  to={item.path}
+                  onClick={handleAdminMenuClose}
+                >
+                  {item.text}
+                </MenuItem>
+              ))}
+            </Menu>
+            <IconButton
+              color="inherit"
+              onClick={handleLogout}
+              sx={{ ml: 2 }}
+            >
+              <AccountCircleIcon />
+            </IconButton>
+          </div>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -111,6 +148,15 @@ export default function PermanentDrawerLeft() {
         </List>
         <Divider />
       </Drawer>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

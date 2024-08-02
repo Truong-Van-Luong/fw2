@@ -1,5 +1,5 @@
-import  { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import axios from 'axios';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Container, Box, Typography } from '@mui/material';
 
 function CreateExpense() {
@@ -7,23 +7,47 @@ function CreateExpense() {
   const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const expense = { description, date, amount, category };
-    console.log(expense);
 
-    setDescription('');
-    setDate('');
-    setAmount('');
-    setCategory('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Bạn phải đăng nhập trước khi thêm chi phí');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:5000/expenses', expense, {
+        headers: {
+          'x-access-token': token
+        }
+      });
+      
+      console.log(response.data);
+      setSuccess('Chi phí được thêm thành công');
+      setError('');
+      setDescription('');
+      setDate('');
+      setAmount('');
+      setCategory('');
+    } catch (error) {
+      console.error(error);
+      setError('Thêm chi phí thất bại');
+      setSuccess('');
+    }
   };
 
   return (
     <Container>
       <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
-      <Typography variant="h4" sx={{ mt: 4, mb: 4 }}>THÊM CHI PHÍ</Typography>
+        <Typography variant="h4" sx={{ mt: 4, mb: 4 }}>THÊM CHI PHÍ</Typography>
+        {error && <Typography color="error">{error}</Typography>}
+        {success && <Typography color="success">{success}</Typography>}
         <TextField
           label="Mô tả"
           fullWidth
@@ -65,16 +89,15 @@ function CreateExpense() {
             <MenuItem value="">
               <em>Chọn danh mục</em>
             </MenuItem>
-            <MenuItem value="Rent">Tiền thuê nhà</MenuItem>
-            <MenuItem value="Groceries">Cửa hàng tạp hóa</MenuItem>
-            <MenuItem value="Transport">Phương tiện đi lại</MenuItem>
+            <MenuItem value="Tiền thuê nhà">Tiền thuê nhà</MenuItem>
+            <MenuItem value="Mua sắm">Cửa hàng tạp hóa</MenuItem>
+            <MenuItem value="Phương tiện">Phương tiện đi lại</MenuItem>
           </Select>
         </FormControl>
-        <Button type="submit" variant="contained"sx={{ mt: 2, bgcolor: '#33ab9f', '&:hover': { bgcolor: '#2a9587' } }}>
+        <Button type="submit" variant="contained" sx={{ mt: 2, bgcolor: '#33ab9f', '&:hover': { bgcolor: '#2a9587' } }}>
           Thêm chi phí
         </Button>
       </Box>
-      <Outlet/>
     </Container>
   );
 }
