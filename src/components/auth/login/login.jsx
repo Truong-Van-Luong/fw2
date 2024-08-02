@@ -1,44 +1,40 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Snackbar, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import './login.scss';
 
 function Login() {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    const navigate = useNavigate(); 
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // success, error
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); 
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async (data) => {
         try {
             const response = await fetch('http://localhost:5000/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(data)
             });
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
                 setSnackbarMessage('Đăng nhập thành công');
                 setSnackbarSeverity('success');
+                setOpenSnackbar(true);
+                setTimeout(() => {
+                    navigate('/'); 
+                }, 1000); 
             } else {
                 setSnackbarMessage('Vui lòng kiểm tra email và password');
                 setSnackbarSeverity('error');
+                setOpenSnackbar(true);
             }
-            setOpenSnackbar(true);
         } catch (error) {
             console.error('Error:', error);
             setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng nhập');
@@ -63,7 +59,7 @@ function Login() {
                                         <div className="text-center">
                                             <h1 className="mt-1 mb-5 pb-1">ĐĂNG NHẬP</h1>
                                         </div>
-                                        <form onSubmit={handleSubmit}>
+                                        <form onSubmit={handleSubmit(onSubmit)}>
                                             <p>Vui lòng đăng nhập tài khoản của bạn</p>
                                             <div className="form-outline mb-4">
                                                 <input
@@ -71,10 +67,15 @@ function Login() {
                                                     id="email"
                                                     className="form-control"
                                                     placeholder="Nhập email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleChange}
+                                                    {...register('email', {
+                                                        required: 'Email là bắt buộc',
+                                                        pattern: {
+                                                            value: /\S+@\S+\.\S+/,
+                                                            message: 'Email không hợp lệ'
+                                                        }
+                                                    })}
                                                 />
+                                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
                                             </div>
                                             <div className="form-outline mb-4">
                                                 <input
@@ -82,10 +83,15 @@ function Login() {
                                                     id="password"
                                                     className="form-control"
                                                     placeholder="Nhập password"
-                                                    name="password"
-                                                    value={formData.password}
-                                                    onChange={handleChange}
+                                                    {...register('password', {
+                                                        required: 'Mật khẩu là bắt buộc',
+                                                        minLength: {
+                                                            value: 6,
+                                                            message: 'Mật khẩu phải có ít nhất 6 ký tự'
+                                                        }
+                                                    })}
                                                 />
+                                                {errors.password && <small className="text-danger">{errors.password.message}</small>}
                                             </div>
                                             <div className="text-center pt-1 mb-5 pb-1">
                                                 <button

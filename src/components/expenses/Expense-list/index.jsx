@@ -11,7 +11,7 @@ function ExpenseList() {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
-  const [action, setAction] = useState(''); // 'edit' or 'delete'
+  const [action, setAction] = useState(''); 
   const [error, setError] = useState('');
 
   const fetchExpenses = async () => {

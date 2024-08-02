@@ -1,5 +1,3 @@
-// src/components/ExpenseManagement.js
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';

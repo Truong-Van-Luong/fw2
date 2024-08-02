@@ -10,7 +10,7 @@ function ExpenseOverview() {
   useEffect(() => {
     const fetchOverviewData = async () => {
       try {
-        const token = localStorage.getItem('token'); // Giả sử bạn lưu token trong local storage
+        const token = localStorage.getItem('token'); 
         if (!token) {
           setError('Bạn phải đăng nhập để xem tổng quan chi phí');
           return;
@@ -76,7 +76,7 @@ function ExpenseOverview() {
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">Xu hướng chi phí theo thời gian</Typography>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={400}>
               <LineChart data={userExpenses}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />

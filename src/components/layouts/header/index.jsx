@@ -66,7 +66,7 @@ export default function PermanentDrawerLeft() {
       setSnackbarMessage('Bạn đã đăng xuất');
       setSnackbarSeverity('success');
       setOpenSnackbar(true); // Hiển thị thông báo đăng xuất
-      setTimeout(() => navigate('/login'), 1000); // Chuyển hướng sau 2 giây
+      setTimeout(() => navigate('/login'), 1000); // Chuyển hướng sau 1 giây
     } else {
       setSnackbarMessage('Bạn vui lòng đăng nhập');
       setSnackbarSeverity('info');

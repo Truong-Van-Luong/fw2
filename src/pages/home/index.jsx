@@ -34,7 +34,7 @@ function Home() {
               <Button
                 variant="contained"
                 component={Link}
-                to="/create"
+                to="/expense-create"
                 sx={{ mt: 2, bgcolor: '#33ab9f', '&:hover': { bgcolor: '#2a9587' } }}
               >
                 Đi tới thêm chi phí

@@ -1,40 +1,34 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Snackbar, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import './register.scss';
 
 function Register() {
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: ''
-    });
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    const navigate = useNavigate(); 
 
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // success, error, info, warning
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); 
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async (data) => {
         try {
             const response = await fetch('http://localhost:5000/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(data)
             });
             if (response.ok) {
                 setSnackbarMessage('Bạn đã đăng ký thành công');
                 setSnackbarSeverity('success');
                 setOpenSnackbar(true);
+                setTimeout(() => {
+                    navigate('/login'); 
+                }, 1000); 
             } else {
                 setSnackbarMessage('Đăng ký thất bại');
                 setSnackbarSeverity('error');
@@ -61,7 +55,7 @@ function Register() {
                             <div className="row g-0">
                                 <div className="col-lg-6">
                                     <div className="card-body p-md-5 mx-md-4">
-                                        <form onSubmit={handleSubmit}>
+                                        <form onSubmit={handleSubmit(onSubmit)}>
                                             <div className="text-center">
                                                 <h1 className="mt-1 mb-5 pb-1">ĐĂNG KÝ</h1>
                                             </div>
@@ -72,10 +66,9 @@ function Register() {
                                                     id="username"
                                                     className="form-control"
                                                     placeholder="Nhập tên"
-                                                    name="username"
-                                                    value={formData.username}
-                                                    onChange={handleChange}
+                                                    {...register('username', { required: 'Tên là bắt buộc' })}
                                                 />
+                                                {errors.username && <small className="text-danger">{errors.username.message}</small>}
                                             </div>
                                             <div className="form-outline mb-4">
                                                 <input
@@ -83,10 +76,15 @@ function Register() {
                                                     id="email"
                                                     className="form-control"
                                                     placeholder="Nhập email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleChange}
+                                                    {...register('email', {
+                                                        required: 'Email là bắt buộc',
+                                                        pattern: {
+                                                            value: /\S+@\S+\.\S+/,
+                                                            message: 'Email không hợp lệ'
+                                                        }
+                                                    })}
                                                 />
+                                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
                                             </div>
                                             <div className="form-outline mb-4">
                                                 <input
@@ -94,10 +92,15 @@ function Register() {
                                                     id="password"
                                                     className="form-control"
                                                     placeholder="Nhập password"
-                                                    name="password"
-                                                    value={formData.password}
-                                                    onChange={handleChange}
+                                                    {...register('password', {
+                                                        required: 'Mật khẩu là bắt buộc',
+                                                        minLength: {
+                                                            value: 6,
+                                                            message: 'Mật khẩu phải có ít nhất 6 ký tự'
+                                                        }
+                                                    })}
                                                 />
+                                                {errors.password && <small className="text-danger">{errors.password.message}</small>}
                                             </div>
                                             <div className="form-check d-flex justify-content-center mb-4">
                                                 <input
@@ -105,7 +108,7 @@ function Register() {
                                                     type="checkbox"
                                                     value=""
                                                     id="registerCheck"
-                                                    checked
+                                                    defaultChecked
                                                     aria-describedby="registerCheckHelpText"
                                                 />
                                                 <label className="form-check-label">
