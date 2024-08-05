@@ -1,40 +1,35 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { fetchOverviewData } from '../../redux/slices/expenseOverviewSlice';
 
 function ExpenseOverview() {
-  const [overviewData, setOverviewData] = useState(null);
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const { data: overviewData, error, status } = useSelector(state => state.overview);
 
   useEffect(() => {
-    const fetchOverviewData = async () => {
-      try {
-        const token = localStorage.getItem('token'); 
-        if (!token) {
-          setError('Bạn phải đăng nhập để xem tổng quan chi phí');
-          return;
-        }
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(fetchOverviewData(token));
+    }
+  }, [dispatch]);
 
-        const response = await axios.get('http://localhost:5000/overview', {
-          headers: {
-            'x-access-token': token
-          }
-        });
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Typography color="error">Bạn phải đăng nhập để xem tổng quan chi phí.</Typography>;
+  }
 
-        setOverviewData(response.data);
-        setError('');
-      } catch (error) {
-        console.error(error);
-        setError('Không thể lấy dữ liệu tổng quan chi phí');
-      }
-    };
+  if (status === 'loading') {
+    return <Typography>Đang tải...</Typography>;
+  }
 
-    fetchOverviewData();
-  }, []);
+  if (status === 'failed') {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   if (!overviewData) {
-    return <Typography>Đang tải...</Typography>;
+    return null;
   }
 
   const { totalSpending, categorySummary, userExpenses } = overviewData;
@@ -42,7 +37,6 @@ function ExpenseOverview() {
   return (
     <Container>
       <Typography variant="h4" sx={{ mt: 4, mb: 4 }}>TỔNG QUAN CHI PHÍ</Typography>
-      {error && <Typography color="error">{error}</Typography>}
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2 }}>

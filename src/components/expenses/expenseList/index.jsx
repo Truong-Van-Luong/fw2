@@ -1,40 +1,37 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Paper } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { fetchExpenses, selectExpense, clearSelectedExpense, updateExpense, deleteExpense } from '../../../redux/slices/expenseSlice';
 
 function ExpenseList() {
-  const [expenses, setExpenses] = useState([]);
-  const [selectedExpense, setSelectedExpense] = useState(null);
+  const dispatch = useDispatch();
+  const { items: expenses, selectedExpense, error, status } = useSelector(state => state.expenses);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
-  const [action, setAction] = useState(''); 
-  const [error, setError] = useState('');
+  const [action, setAction] = useState('');
+  const [errorMessage, setErrorMessage] = useState(''); 
 
-  const fetchExpenses = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('Bạn phải đăng nhập để xem chi phí');
-        return;
-      }
-      const response = await axios.get('http://localhost:5000/expenses', {
-        headers: {
-          'x-access-token': token
-        }
-      });
-      setExpenses(response.data);
-    } catch (error) {
-      console.error(error);
-      setError('Không thể tải danh sách chi phí');
+  const fetchExpensesData = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(fetchExpenses(token));
+    } else {
+      setErrorMessage('Bạn phải đăng nhập để xem danh sách chi phí.');
     }
   };
 
   const handleOpenDialog = (expense, actionType) => {
-    setSelectedExpense(expense);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setErrorMessage('Bạn phải đăng nhập để thực hiện thao tác này');
+      return;
+    }
+
+    dispatch(selectExpense(expense));
     setDescription(expense.description);
     setDate(expense.date);
     setAmount(expense.amount);
@@ -48,56 +45,54 @@ function ExpenseList() {
     setDate('');
     setAmount('');
     setAction('');
-    setSelectedExpense(null);
+    dispatch(clearSelectedExpense());
   };
 
   const handleSubmit = async () => {
-    if (!selectedExpense) {
-      setError('Không có chi phí nào được chọn');
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setErrorMessage('Bạn phải đăng nhập để thực hiện thao tác này');
       return;
     }
 
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('Bạn phải đăng nhập để thực hiện thao tác này');
-        return;
+    if (action === 'edit' && selectedExpense) {
+      try {
+        await dispatch(updateExpense({ id: selectedExpense.id, updates: { description, date, amount }, token })).unwrap();
+        fetchExpensesData();
+        handleCloseDialog();
+      } catch (error) {
+        setErrorMessage('Cập nhật chi phí thất bại');
       }
-
-      if (action === 'edit') {
-        await axios.put(`http://localhost:5000/expenses/${selectedExpense.id}`, { description, date, amount }, {
-          headers: {
-            'x-access-token': token
-          }
-        });
-      } else if (action === 'delete') {
-        if (!selectedExpense.id) {
-          setError('ID chi phí không hợp lệ');
-          return;
-        }
-        await axios.delete(`http://localhost:5000/expenses/${selectedExpense.id}`, {
-          headers: {
-            'x-access-token': token
-          }
-        });
+    } else if (action === 'delete' && selectedExpense) {
+      try {
+        await dispatch(deleteExpense({ id: selectedExpense.id, token })).unwrap();
+        fetchExpensesData();
+        handleCloseDialog();
+      } catch (error) {
+        setErrorMessage('Xóa chi phí thất bại');
       }
-
-      fetchExpenses();
-      handleCloseDialog();
-    } catch (error) {
-      console.error(error);
-      setError('Xử lý chi phí thất bại');
+    } else {
+      setErrorMessage('Không có chi phí nào được chọn');
     }
   };
 
   useEffect(() => {
-    fetchExpenses();
-  }, []);
+    fetchExpensesData();
+  }, [dispatch]);
+
+  if (status === 'loading') {
+    return <Typography>Đang tải...</Typography>;
+  }
+
+  if (status === 'failed') {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   return (
     <Container>
       <Typography variant="h4" sx={{ mt: 4, mb: 4 }}>DANH SÁCH CHI PHÍ</Typography>
-      {error && <Typography color="error">{error}</Typography>}
+      {errorMessage && <Typography color="error">{errorMessage}</Typography>}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -129,12 +124,10 @@ function ExpenseList() {
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Dialog Sửa/Xóa Chi Phí */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>{action === 'edit' ? 'Sửa Chi Phí' : 'Xóa Chi Phí'}</DialogTitle>
+        <DialogTitle>{action === 'edit' ? 'Cập Nhật Chi Phí' : 'Xóa Chi Phí'}</DialogTitle>
         <DialogContent>
-          {action === 'edit' ? (
+          {action === 'edit' && (
             <>
               <TextField
                 label="Mô tả"
@@ -164,15 +157,12 @@ function ExpenseList() {
                 onChange={(e) => setAmount(e.target.value)}
               />
             </>
-          ) : (
-            <Typography>Bạn có chắc chắn muốn xóa chi phí này không?</Typography>
           )}
+          {action === 'delete' && <Typography>Bạn có chắc chắn muốn xóa chi phí này không?</Typography>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Hủy</Button>
-          <Button onClick={handleSubmit} color="primary">
-            {action === 'edit' ? 'Cập nhật' : 'Xóa'}
-          </Button>
+          <Button onClick={handleCloseDialog} color="primary">Hủy</Button>
+          <Button onClick={handleSubmit} color="secondary">{action === 'edit' ? 'Cập Nhật' : 'Xóa'}</Button>
         </DialogActions>
       </Dialog>
     </Container>

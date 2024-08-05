@@ -12,8 +12,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+// import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+// import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import CreateIcon from '@mui/icons-material/Create';
 import OverviewIcon from '@mui/icons-material/Assessment';
 import ReportIcon from '@mui/icons-material/Report';
@@ -26,13 +26,19 @@ import { useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
+import Avatar from "@mui/material/Avatar";
+import Tooltip from "@mui/material/Tooltip";
+import Logout from "@mui/icons-material/Logout";
+import LoginIcon from '@mui/icons-material/Login';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+
 const drawerWidth = 240;
 
 export default function PermanentDrawerLeft() {
   const menuItems = [
     { text: 'Trang chủ', icon: <HomeIcon />, path: '/' },
-    { text: 'Đăng nhập', icon: <AccountCircleIcon />, path: '/login' },
-    { text: 'Đăng ký', icon: <AppRegistrationIcon />, path: '/register' },
+    // { text: 'Đăng nhập', icon: <AccountCircleIcon />, path: '/login' },
+    // { text: 'Đăng ký', icon: <AppRegistrationIcon />, path: '/register' },
     { text: 'Thêm chi phí', icon: <CreateIcon />, path: '/expense-create' },
     { text: 'Danh sách', icon: <ChecklistIcon />, path: '/expense-list' },
     { text: 'Tổng quan chi phí', icon: <OverviewIcon />, path: '/expenses' },
@@ -44,33 +50,49 @@ export default function PermanentDrawerLeft() {
     { text: 'Quản lý chi tiêu người dùng', path: '/admin/expenses' },
   ];
 
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElAdmin, setAnchorElAdmin] = useState(null);
+  const [anchorElAccount, setAnchorElAccount] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const navigate = useNavigate();
 
   const handleAdminMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorElAdmin(event.currentTarget);
   };
 
   const handleAdminMenuClose = () => {
-    setAnchorEl(null);
+    setAnchorElAdmin(null);
+  };
+
+  const handleAccountMenuClick = (event) => {
+    setAnchorElAccount(event.currentTarget);
+  };
+
+  const handleAccountMenuClose = () => {
+    setAnchorElAccount(null);
   };
 
   const handleLogout = () => {
-    const token = localStorage.getItem('token'); // Kiểm tra token
-
+    const token = localStorage.getItem('token');
+  
     if (token) {
-      localStorage.removeItem('token'); // Xóa token
+      localStorage.removeItem('token');
       setSnackbarMessage('Bạn đã đăng xuất');
       setSnackbarSeverity('success');
-      setOpenSnackbar(true); // Hiển thị thông báo đăng xuất
-      setTimeout(() => navigate('/login'), 1000); // Chuyển hướng sau 1 giây
+      setOpenSnackbar(true);
+  
+      setTimeout(() => {
+        navigate('/login', { replace: true });
+      }, 1000);
+  
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } else {
-      setSnackbarMessage('Bạn vui lòng đăng nhập');
+      setSnackbarMessage('Bạn chưa đăng nhập');
       setSnackbarSeverity('info');
-      setOpenSnackbar(true); // Hiển thị thông báo yêu cầu đăng nhập
+      setOpenSnackbar(true);
     }
   };
 
@@ -97,8 +119,8 @@ export default function PermanentDrawerLeft() {
               <AdminPanelSettingsIcon />
             </IconButton>
             <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
+              anchorEl={anchorElAdmin}
+              open={Boolean(anchorElAdmin)}
               onClose={handleAdminMenuClose}
             >
               {adminItems.map((item) => (
@@ -112,13 +134,75 @@ export default function PermanentDrawerLeft() {
                 </MenuItem>
               ))}
             </Menu>
-            <IconButton
-              color="inherit"
-              onClick={handleLogout}
-              sx={{ ml: 2 }}
+            <Tooltip title="Account settings">
+              <IconButton
+                onClick={handleAccountMenuClick}
+                size="small"
+                sx={{ ml: 2 }}
+                aria-controls={anchorElAccount ? "account-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={anchorElAccount ? "true" : undefined}
+              >
+                <Avatar sx={{ width: 32, height: 32 }}>L</Avatar>
+              </IconButton>
+            </Tooltip>
+            <Menu
+              anchorEl={anchorElAccount}
+              id="account-menu"
+              open={Boolean(anchorElAccount)}
+              onClose={handleAccountMenuClose}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                  mt: 1.5,
+                  "& .MuiAvatar-root": {
+                    width: 32,
+                    height: 32,
+                    ml: -0.5,
+                    mr: 1,
+                  },
+                  "&::before": {
+                    content: '""',
+                    display: "block",
+                    position: "absolute",
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: "background.paper",
+                    transform: "translateY(-50%) rotate(45deg)",
+                    zIndex: 0,
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-              <AccountCircleIcon />
-            </IconButton>
+              <MenuItem onClick={handleAccountMenuClose}>
+                <Avatar fontSize="small" /> Tài khoản của tôi
+              </MenuItem>
+              <MenuItem component={Link} to="/login" onClick={handleAccountMenuClose}>
+                <ListItemIcon>
+                  <LoginIcon fontSize="small" />
+                </ListItemIcon>
+                Đăng nhập
+              </MenuItem>
+              <MenuItem component={Link} to="/register" onClick={handleAccountMenuClose}>
+                <ListItemIcon>
+                  <HowToRegIcon fontSize="small" />
+                </ListItemIcon>
+                Đăng ký
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout fontSize="small" />
+                </ListItemIcon>
+                Đăng xuất
+              </MenuItem>
+            </Menu>
           </div>
         </Toolbar>
       </AppBar>

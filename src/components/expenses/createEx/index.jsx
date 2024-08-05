@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Container, Box, Typography } from '@mui/material';
+import { addExpense } from '../../../redux/slices/expenseSlice';
 
 function CreateExpense() {
   const [description, setDescription] = useState('');
@@ -9,26 +10,23 @@ function CreateExpense() {
   const [category, setCategory] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setError('Bạn phải đăng nhập trước khi thêm chi phí');
+      setSuccess('');
+      return;
+    }
+
     const expense = { description, date, amount, category };
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('Bạn phải đăng nhập trước khi thêm chi phí');
-        return;
-      }
-
-      const response = await axios.post('http://localhost:5000/expenses', expense, {
-        headers: {
-          'x-access-token': token
-        }
-      });
-      
-      console.log(response.data);
+      await dispatch(addExpense({ expense, token })).unwrap();
       setSuccess('Chi phí được thêm thành công');
       setError('');
       setDescription('');
@@ -36,7 +34,6 @@ function CreateExpense() {
       setAmount('');
       setCategory('');
     } catch (error) {
-      console.error(error);
       setError('Thêm chi phí thất bại');
       setSuccess('');
     }

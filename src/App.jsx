@@ -1,12 +1,11 @@
-import '@fontsource/inter';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/home';
 import Login from './components/auth/login/login';
 import Register from './components/auth/register/register';
-import CreateExpense from './components/expenses/create-ex';
-import ExpenseList from './components/expenses/Expense-list';
+import CreateExpense from './components/expenses/createEx';
+import ExpenseList from './components/expenses/expenseList';
 import ExpenseOverview from './components/expenseOverview';
-import ExpenseReport from './components/expense-report';
+import ExpenseReport from './components/expenseReport';
 import Header from './components/layouts/header';
 import UserManagement from './components/admin/list-user';
 import ExpenseManagement from './components/admin/expense-user';

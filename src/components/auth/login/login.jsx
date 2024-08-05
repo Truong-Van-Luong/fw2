@@ -3,35 +3,36 @@ import { useForm } from 'react-hook-form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { loginUser } from '../../../redux/slices/authSlice';
 import './login.scss';
 
 function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate(); 
+    const dispatch = useDispatch();
+    useSelector((state) => state.auth);
+
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success'); 
 
     const onSubmit = async (data) => {
         try {
-            const response = await fetch('http://localhost:5000/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('token', data.token);
+            const resultAction = await dispatch(loginUser(data));
+            if (loginUser.fulfilled.match(resultAction)) {
                 setSnackbarMessage('Đăng nhập thành công');
                 setSnackbarSeverity('success');
                 setOpenSnackbar(true);
                 setTimeout(() => {
-                    navigate('/'); 
-                }, 1000); 
+                    navigate('/', { replace: true });
+                }, 1000);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
-                setSnackbarMessage('Vui lòng kiểm tra email và password');
+                setSnackbarMessage(resultAction.payload || 'Đăng nhập thất bại');
                 setSnackbarSeverity('error');
                 setOpenSnackbar(true);
             }

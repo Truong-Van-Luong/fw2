@@ -1,30 +1,34 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { fetchExpenses, selectExpenses, selectError, selectStatus } from '../../../redux/slices/admins/expenseManagementSlice';
 
 const ExpenseManagement = () => {
-  const [expenses, setExpenses] = useState([]);
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const expenses = useSelector(selectExpenses);
+  const error = useSelector(selectError);
+  const status = useSelector(selectStatus);
 
   useEffect(() => {
-    fetchExpenses();
-  }, []);
-
-  const fetchExpenses = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/admin/expenses', {
-        headers: { 'x-access-token': localStorage.getItem('token') }
-      });
-      setExpenses(response.data);
-    } catch (error) {
-      console.error(error);
-      setError('Không thể tải danh sách chi phí');
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(fetchExpenses(token));
     }
-  };
+  }, [dispatch]);
 
-  // Nhóm chi phí theo người dùng
+  if (status === 'loading') {
+    return <Typography>Đang tải...</Typography>;
+  }
+
+  if (status === 'failed') {
+    return <Typography color="error">{error}</Typography>;
+  }
+
   const groupByUser = (expenses) => {
+    if (!Array.isArray(expenses)) {
+      return {};
+    }
     return expenses.reduce((acc, expense) => {
       if (!acc[expense.user]) {
         acc[expense.user] = [];

@@ -1,26 +1,28 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
+import { fetchUsers, selectUsers, selectError, selectStatus } from '../../../redux/slices/admins/userManagementSlice';
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const users = useSelector(selectUsers);
+  const error = useSelector(selectError);
+  const status = useSelector(selectStatus);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/admin/users', {
-        headers: { 'x-access-token': localStorage.getItem('token') }
-      });
-      setUsers(response.data);
-    } catch (error) {
-      console.error(error);
-      setError('Không thể tải danh sách người dùng');
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(fetchUsers(token));
     }
-  };
+  }, [dispatch]);
+
+  if (status === 'loading') {
+    return <Typography>Đang tải...</Typography>;
+  }
+
+  if (status === 'failed') {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   return (
     <Container>

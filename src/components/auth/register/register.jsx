@@ -3,11 +3,15 @@ import { useForm } from 'react-hook-form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../../../redux/slices/authSlice';
 import './register.scss';
 
 function Register() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate(); 
+    const dispatch = useDispatch();
+    useSelector((state) => state.auth);
 
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -15,22 +19,16 @@ function Register() {
 
     const onSubmit = async (data) => {
         try {
-            const response = await fetch('http://localhost:5000/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            if (response.ok) {
+            const resultAction = await dispatch(registerUser(data));
+            if (registerUser.fulfilled.match(resultAction)) {
                 setSnackbarMessage('Bạn đã đăng ký thành công');
                 setSnackbarSeverity('success');
                 setOpenSnackbar(true);
                 setTimeout(() => {
                     navigate('/login'); 
-                }, 1000); 
+                }, 1000);
             } else {
-                setSnackbarMessage('Đăng ký thất bại');
+                setSnackbarMessage(resultAction.payload || 'Đăng ký thất bại');
                 setSnackbarSeverity('error');
                 setOpenSnackbar(true);
             }

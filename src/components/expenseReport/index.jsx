@@ -1,27 +1,34 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Typography, Paper } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { fetchMonthlyReport } from '../../redux/slices/expenseReportSlice';
 
 const ExpenseReport = () => {
-  const [categorySummary, setCategorySummary] = useState({});
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const { data: categorySummary, error, status } = useSelector(state => state.report);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    fetchMonthlyReport();
-  }, []);
-
-  const fetchMonthlyReport = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/report/monthly', {
-        headers: { 'x-access-token': localStorage.getItem('token') }
-      });
-      setCategorySummary(response.data);
-    } catch (error) {
-      console.error(error);
-      setError('Không thể tải báo cáo chi tiêu');
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(fetchMonthlyReport(token));
+    } else {
+      setErrorMessage('Bạn phải đăng nhập để xem báo cáo chi tiêu.');
     }
-  };
+  }, [dispatch]);
+
+  if (status === 'loading') {
+    return <Typography>Đang tải...</Typography>;
+  }
+
+  if (status === 'failed') {
+    return <Typography color="error">{error}</Typography>;
+  }
+
+  if (errorMessage) {
+    return <Typography color="error">{errorMessage}</Typography>;
+  }
 
   const data = Object.keys(categorySummary).map(category => ({
     name: category,
@@ -33,7 +40,6 @@ const ExpenseReport = () => {
   return (
     <Container>
       <Typography variant="h4" sx={{ mt: 4, mb: 4 }}>Báo Cáo Chi Tiêu Hàng Tháng</Typography>
-      {error && <Typography color="error">{error}</Typography>}
       <Paper sx={{ padding: 2 }}>
         <PieChart width={800} height={400}>
           <Pie
