@@ -1,40 +1,43 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { createSelector } from 'reselect';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { createSelector } from "reselect";
 
-export const fetchExpenses = createAsyncThunk('expenses/fetchExpenses', async (token) => {
-  const response = await axios.get('http://localhost:5000/admin/expenses', {
-    headers: { 'x-access-token': token }
-  });
-  return response.data;
-});
+export const fetchExpenses = createAsyncThunk(
+  "expenses/fetchExpenses",
+  async (token) => {
+    const response = await axios.get("http://localhost:5000/admin/expenses", {
+      headers: { "x-access-token": token },
+    });
+    return response.data;
+  }
+);
 
 const expenseManagementSlice = createSlice({
-  name: 'adminExpenses',
+  name: "adminExpenses",
   initialState: {
     expenses: [],
-    error: '',
-    status: 'idle',
+    error: "",
+    status: "idle",
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchExpenses.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
       .addCase(fetchExpenses.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.expenses = action.payload;
       })
       .addCase(fetchExpenses.rejected, (state) => {
-        state.status = 'failed';
-        state.error = 'Không thể tải danh sách chi phí';
+        state.status = "failed";
+        state.error = "Không thể tải danh sách chi phí";
       });
   },
 });
 
-
-const selectExpensesState = (state) => state.adminExpenses || { expenses: [], error: '', status: 'idle' };
+const selectExpensesState = (state) =>
+  state.adminExpenses || { expenses: [], error: "", status: "idle" };
 
 export const selectExpenses = createSelector(
   [selectExpensesState],

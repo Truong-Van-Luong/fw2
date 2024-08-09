@@ -1,53 +1,57 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { createSelector } from 'reselect';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { createSelector } from "reselect";
 
-export const fetchUsers = createAsyncThunk('users/fetchUsers', async (token) => {
-  const response = await axios.get('http://localhost:5000/admin/users', {
-    headers: { 'x-access-token': token }
-  });
-  return response.data;
-});
+export const fetchUsers = createAsyncThunk(
+  "users/fetchUsers",
+  async (token) => {
+    const response = await axios.get("http://localhost:5000/admin/users", {
+      headers: { "x-access-token": token },
+    });
+    return response.data;
+  }
+);
 
 const userManagementSlice = createSlice({
-  name: 'adminUsers',
+  name: "adminUsers",
   initialState: {
     users: [],
-    error: '',
-    status: 'idle',
+    error: "",
+    status: "idle",
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.users = action.payload;
       })
       .addCase(fetchUsers.rejected, (state) => {
-        state.status = 'failed';
-        state.error = 'Không thể tải danh sách người dùng';
+        state.status = "failed";
+        state.error = "Không thể tải danh sách người dùng";
       });
   },
 });
 
-const selectUsersState = (state) => state.adminUsers || { users: [], error: '', status: 'idle' };
+const selectUsersState = (state) =>
+  state.adminUsers || { users: [], error: "", status: "idle" };
 
 export const selectUsers = createSelector(
   [selectUsersState],
-  (state) => state.users 
+  (state) => state.users
 );
 
 export const selectError = createSelector(
   [selectUsersState],
-  (state) => state.error 
+  (state) => state.error
 );
 
 export const selectStatus = createSelector(
   [selectUsersState],
-  (state) => state.status 
+  (state) => state.status
 );
 
 export default userManagementSlice.reducer;

@@ -1,149 +1,216 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Snackbar, Alert } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { registerUser } from '../../../redux/slices/authSlice';
-import './register.scss';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  Snackbar,
+  Alert,
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Paper,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../../../redux/slices/authSlice";
+import "./register.scss"; // Ensure you have this SCSS file for additional styling
 
 function Register() {
-    const { register, handleSubmit, formState: { errors } } = useForm();
-    const navigate = useNavigate(); 
-    const dispatch = useDispatch();
-    useSelector((state) => state.auth);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-    const onSubmit = async (data) => {
-        try {
-            const resultAction = await dispatch(registerUser(data));
-            if (registerUser.fulfilled.match(resultAction)) {
-                setSnackbarMessage('Bạn đã đăng ký thành công');
-                setSnackbarSeverity('success');
-                setOpenSnackbar(true);
-                setTimeout(() => {
-                    navigate('/login'); 
-                }, 1000);
-            } else {
-                setSnackbarMessage(resultAction.payload || 'Đăng ký thất bại');
-                setSnackbarSeverity('error');
-                setOpenSnackbar(true);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng ký');
-            setSnackbarSeverity('error');
-            setOpenSnackbar(true);
-        }
-    };
+  const onSubmit = async (data) => {
+    try {
+      const resultAction = await dispatch(registerUser(data));
+      if (registerUser.fulfilled.match(resultAction)) {
+        setSnackbarMessage("Bạn đã đăng ký thành công");
+        setSnackbarSeverity("success");
+        setOpenSnackbar(true);
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      } else {
+        setSnackbarMessage(resultAction.payload || "Đăng ký thất bại");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setSnackbarMessage("Đã xảy ra lỗi trong quá trình đăng ký");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    }
+  };
 
-    const handleCloseSnackbar = () => {
-        setOpenSnackbar(false);
-    };
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
-    return (
-        <section className="h-100 gradient-form" style={{ backgroundColor: '#eee' }}>
-            <div className="container py-5 h-100">
-                <div className="row d-flex justify-content-center align-items-center h-100">
-                    <div className="col-xl-10">
-                        <div className="card rounded-3 text-black">
-                            <div className="row g-0">
-                                <div className="col-lg-6">
-                                    <div className="card-body p-md-5 mx-md-4">
-                                        <form onSubmit={handleSubmit(onSubmit)}>
-                                            <div className="text-center">
-                                                <h1 className="mt-1 mb-5 pb-1">ĐĂNG KÝ</h1>
-                                            </div>
-                                            <p>Vui lòng đăng ký tài khoản</p>
-                                            <div className="form-outline mb-4">
-                                                <input
-                                                    type="text"
-                                                    id="username"
-                                                    className="form-control"
-                                                    placeholder="Nhập tên"
-                                                    {...register('username', { required: 'Tên là bắt buộc' })}
-                                                />
-                                                {errors.username && <small className="text-danger">{errors.username.message}</small>}
-                                            </div>
-                                            <div className="form-outline mb-4">
-                                                <input
-                                                    type="email"
-                                                    id="email"
-                                                    className="form-control"
-                                                    placeholder="Nhập email"
-                                                    {...register('email', {
-                                                        required: 'Email là bắt buộc',
-                                                        pattern: {
-                                                            value: /\S+@\S+\.\S+/,
-                                                            message: 'Email không hợp lệ'
-                                                        }
-                                                    })}
-                                                />
-                                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
-                                            </div>
-                                            <div className="form-outline mb-4">
-                                                <input
-                                                    type="password"
-                                                    id="password"
-                                                    className="form-control"
-                                                    placeholder="Nhập password"
-                                                    {...register('password', {
-                                                        required: 'Mật khẩu là bắt buộc',
-                                                        minLength: {
-                                                            value: 6,
-                                                            message: 'Mật khẩu phải có ít nhất 6 ký tự'
-                                                        }
-                                                    })}
-                                                />
-                                                {errors.password && <small className="text-danger">{errors.password.message}</small>}
-                                            </div>
-                                            <div className="form-check d-flex justify-content-center mb-4">
-                                                <input
-                                                    className="form-check-input me-2"
-                                                    type="checkbox"
-                                                    value=""
-                                                    id="registerCheck"
-                                                    defaultChecked
-                                                    aria-describedby="registerCheckHelpText"
-                                                />
-                                                <label className="form-check-label">
-                                                    Tôi đã đọc và đồng ý với các điều khoản
-                                                </label>
-                                            </div>
-                                            <div className="text-center pt-1 mb-5 pb-1">
-                                                <button type="submit" className="btn btn-block fa-lg gradient-custom-2 mb-3 btn-login">
-                                                    ĐĂNG KÝ
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div className="col-lg-6 d-flex align-items-center gradient-custom-2">
-                                    <div className="text-white px-3 py-4 p-md-5 mx-md-4 text-center">
-                                        <h2 className="mb-4">Chào bạn</h2>
-                                        <p className="small mb-0">Đăng ký với thông tin cá nhân của bạn để sử dụng tất cả các tính năng của trang web</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-        </section>
-    );
+  return (
+    <Container component="main" maxWidth="xs" sx={{ mt: 8 }}>
+      <Paper
+        elevation={10}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          p: 4,
+          borderRadius: 4,
+          boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
+          transition: "transform 0.3s, box-shadow 0.3s",
+          "&:hover": {
+            boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.25)",
+          },
+        }}
+      >
+        <Typography
+          component="h1"
+          variant="h4"
+          gutterBottom
+          sx={{ color: "#1976d2", fontWeight: "bold", mb: 3 }}
+        >
+          Đăng Ký
+        </Typography>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="username"
+            label="Tên"
+            placeholder="Nhập tên"
+            autoComplete="username"
+            {...register("username", { required: "Tên là bắt buộc" })}
+            error={!!errors.username}
+            helperText={errors.username ? errors.username.message : ""}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#2196f3",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#1976d2",
+                },
+              },
+            }}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="email"
+            label="Email"
+            placeholder="Nhập email"
+            autoComplete="email"
+            {...register("email", {
+              required: "Email là bắt buộc",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "Email không hợp lệ",
+              },
+            })}
+            error={!!errors.email}
+            helperText={errors.email ? errors.email.message : ""}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#2196f3",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#1976d2",
+                },
+              },
+            }}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="password"
+            label="Mật khẩu"
+            type="password"
+            placeholder="Nhập mật khẩu"
+            autoComplete="new-password"
+            {...register("password", {
+              required: "Mật khẩu là bắt buộc",
+              minLength: {
+                value: 6,
+                message: "Mật khẩu phải có ít nhất 6 ký tự",
+              },
+            })}
+            error={!!errors.password}
+            helperText={errors.password ? errors.password.message : ""}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#2196f3",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#1976d2",
+                },
+              },
+            }}
+          />
+          <FormControlLabel
+            control={<Checkbox defaultChecked color="primary" />}
+            label="Tôi đã đọc và đồng ý với điều khoản"
+            sx={{ mb: 2 }}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{
+              mt: 2,
+              mb: 1,
+              bgcolor: "#1976d2",
+              "&:hover": { bgcolor: "#1565c0" },
+              transition: "background-color 0.3s, transform 0.2s",
+              "&:active": { transform: "scale(0.98)" },
+            }}
+          >
+            Đăng Ký
+          </Button>
+        </form>
+      </Paper>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ mt: 2 }} // Add some margin to position the Snackbar better
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{
+            width: "100%",
+            bgcolor: snackbarSeverity === "success" ? "#4caf50" : "#f44336", // Match colors with CreateExpense
+            color: "#fff",
+            "& .MuiAlert-icon": {
+              color: "#fff", // Icon color
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
 }
 
 export default Register;
